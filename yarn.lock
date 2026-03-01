@@ -1564,6 +1564,11 @@ react-refresh@^0.18.0:
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.18.0.tgz"
   integrity sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==
 
+react-resizable-panels@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/react-resizable-panels/-/react-resizable-panels-4.7.0.tgz#4aa7c31639c379d5fb43233a1c7c2362391a9747"
+  integrity sha512-QJTeh8KJR6lKzDwVez+WGPPUPuarIjR3ptg23thJ0G5dAMYJH4iSN1AnNY0DuSP+PgH8s9eYfwrR7AlmX6TvYA==
+
 react-syntax-highlighter@^16.1.1:
   version "16.1.1"
   resolved "https://registry.npmjs.org/react-syntax-highlighter/-/react-syntax-highlighter-16.1.1.tgz"
