@@ -1,4 +1,5 @@
 import { Panel, Group, Separator } from "react-resizable-panels";
+import { Analytics } from "@vercel/analytics/react";
 import CodeBlock from "./components/CodeBlock";
 import FilesTree from "./components/FilesTree";
 import Terminal from "./components/Terminal";
@@ -29,6 +30,7 @@ function App() {
           </Group>
         </Panel>
       </Group>
+      <Analytics />
     </div>
   );
 }
