@@ -5,6 +5,7 @@ import useCustomStore from "../../store/useCustomStore";
 
 const Terminal = () => {
   const codeToRun = useCustomStore((state) => state.code);
+  const name = useCustomStore((state) => state.name);
 
   const terminalRef = useRef(null);
   const xtermRef = useRef(null);
@@ -29,12 +30,13 @@ const Terminal = () => {
       },
       rows: 15,
       convertEol: true,
+      lineHeight: 1.3,
     });
 
     xtermRef.current = term;
     term.open(terminalRef.current);
 
-    term.writeln("\x1b[33m🚀 Inicializando ambiente Python...\x1b[0m");
+    term.writeln("\x1b[33m🚀  Inicializando ambiente Python...\x1b[0m");
 
     // ======================================
     // CAPTURA DE INPUT DO TECLADO
@@ -66,7 +68,7 @@ const Terminal = () => {
     const setupPyodide = async () => {
       try {
         if (!window.loadPyodide) {
-          term.writeln("\x1b[31m❌ CDN do Pyodide não encontrada.\x1b[0m");
+          term.writeln("\x1b[31m❌  CDN do Pyodide não encontrada.\x1b[0m");
           return;
         }
 
@@ -92,10 +94,10 @@ builtins.input = custom_input
         `);
 
         setIsReady(true);
-        term.writeln("\x1b[32m✅ Python 3.12 pronto!\x1b[0m");
+        term.writeln("\x1b[32m✅  Python 3.12 pronto!\x1b[0m");
       } catch (err) {
         term.writeln(
-          "\\x1b[31m❌ Erro ao carregar Pyodide: " + err.message + "\\x1b[0m",
+          "\\x1b[31m❌  Erro ao carregar Pyodide: " + err.message + "\\x1b[0m",
         );
       }
     };
@@ -120,7 +122,7 @@ builtins.input = custom_input
     term.focus();
 
     if (!pyodideRef.current || !codeToRun) {
-      term.writeln("\x1b[31m⚠️ Nenhum código disponível.\x1b[0m");
+      term.writeln("\x1b[31m⚠️  Nenhum código disponível.\x1b[0m");
       return;
     }
 
@@ -190,19 +192,19 @@ await __main__()
 
         <button
           onClick={runPython}
-          disabled={!isReady || !codeToRun}
+          disabled={!isReady || !codeToRun || !name.includes(".py")}
           style={{
-            backgroundColor: isReady && codeToRun ? "#4CAF50" : "#555",
+            backgroundColor: isReady && codeToRun ? name.includes(".py") ? "#4CAF50" : "#f435" : "#555",
             color: "white",
             border: "none",
             borderRadius: "4px",
             padding: "6px 20px",
-            cursor: isReady && codeToRun ? "pointer" : "not-allowed",
+            cursor: isReady && codeToRun ? name.includes(".py") ? "pointer" : "not-allowed" : "not-allowed",
             fontWeight: "bold",
             width: "auto",
           }}
         >
-          {isReady ? "▶ RUN" : "CARREGANDO..."}
+          {isReady ? name.includes(".py") ? "▶ RUN" : "STAND BY" : "CARREGANDO..."}
         </button>
       </div>
 
