@@ -7,6 +7,7 @@ import PythonIcon from "../../assets/PythonIcon";
 import FileIcon from "../../assets/FileIcon";
 import OpenFolderIcon from "../../assets/OpenFolderIcon";
 import CloseFolderIcon from "../../assets/CloseFolderIcon";
+import BeanEater from "../../assets/beanEater.svg";
 
 type FileTree = {
   id: string;
@@ -86,7 +87,11 @@ const FilesTree = () => {
     return buildTree(data.tree);
   }, [data]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return (
+    <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
+      <img src={BeanEater} alt="Loading..." style={{ width: "100px", margin: "20px auto" }} />
+    </div>
+  );
   if (error) return <p>Error: {error.message}</p>;
 
   return (

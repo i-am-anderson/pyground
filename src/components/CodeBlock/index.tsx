@@ -4,6 +4,7 @@ import useCustomStore from "../../store/useCustomStore";
 import useFetch from "../../hooks/useFetch";
 import base64Decoded from "../../utils/base64Decoded";
 import { useEffect, useState } from "react";
+import BeanEater from "../../assets/beanEater.svg";
 
 type CodeFile = {
   content: string;
@@ -31,7 +32,11 @@ const CodeBlock = () => {
     addCode(base64Decoded(data.content || ""));
   }, [data]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return (
+    <div style={{display: "flex", height: "100%", justifyContent: "center", alignItems: "center"}}>
+      <img src={BeanEater} alt="Loading..." style={{ width: "100px", margin: "20px auto" }} />
+    </div>
+  );
   if (error) return <p>Error: {error.message}</p>;
   return (
     <SyntaxHighlighter

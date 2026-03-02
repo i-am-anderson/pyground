@@ -67,3 +67,8 @@
   opacity: 1;
   background-color: #646cff; /* Pontos ficam brancos no destaque */
 }
+
+.xterm-screen {
+  width: 100% !important;
+  height: 100% !important;
+}
