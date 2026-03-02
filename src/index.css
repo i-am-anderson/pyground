@@ -13,6 +13,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 
 body {
   display: flex;
@@ -44,4 +48,29 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.terminal.xterm {
+  height: 100%;
+}
+
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #646cff #333;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #333;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #646cff;
+  border-radius: 20px;
+  border: 3px solid #333;
 }

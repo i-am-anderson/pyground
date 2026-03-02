@@ -31,12 +31,13 @@ const Terminal = () => {
       rows: 15,
       convertEol: true,
       lineHeight: 1.3,
+      
     });
 
     xtermRef.current = term;
     term.open(terminalRef.current);
 
-    term.writeln("\x1b[33m🚀  Inicializando ambiente Python...\x1b[0m");
+    term.writeln("\n\x1b[33m🚀  Inicializando ambiente Python...\x1b[0m");
 
     // ======================================
     // CAPTURA DE INPUT DO TECLADO
@@ -194,26 +195,40 @@ await __main__()
           onClick={runPython}
           disabled={!isReady || !codeToRun || !name.includes(".py")}
           style={{
-            backgroundColor: isReady && codeToRun ? name.includes(".py") ? "#4CAF50" : "#f435" : "#555",
+            backgroundColor:
+              isReady && codeToRun
+                ? name.includes(".py")
+                  ? "#646cff"
+                  : "#f435"
+                : "#555",
             color: "white",
             border: "none",
             borderRadius: "4px",
             padding: "6px 20px",
-            cursor: isReady && codeToRun ? name.includes(".py") ? "pointer" : "not-allowed" : "not-allowed",
+            cursor:
+              isReady && codeToRun
+                ? name.includes(".py")
+                  ? "pointer"
+                  : "not-allowed"
+                : "not-allowed",
             fontWeight: "bold",
             width: "auto",
           }}
         >
-          {isReady ? name.includes(".py") ? "▶ RUN" : "STAND BY" : "CARREGANDO..."}
+          {isReady
+            ? name.includes(".py")
+              ? "▶ RUN"
+              : "STAND BY"
+            : "CARREGANDO..."}
         </button>
       </div>
 
       <div
         ref={terminalRef}
         style={{
-          width: "99%",
-          height: "100%",
-          padding: "10px",
+          width: "100%",
+          height: "calc(100% - 50px)",
+          paddingLeft: "10px",
           backgroundColor: "#1d1f21",
         }}
       />

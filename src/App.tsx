@@ -8,7 +8,6 @@ import "./App.css";
 function App() {
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1d1f21" }}>
-      {/* Grupo Principal: Horizontal (FilesTree vs Resto) */}
       <Group orientation="horizontal">
         <Panel defaultSize={20} minSize={100}>
           <FilesTree />
