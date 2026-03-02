@@ -7,7 +7,9 @@
 [role="separator"] {
   position: relative;
   background-color: #2d2d2d; /* Cor da linha em repouso */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,7 +31,9 @@
   background-color: #555;
   border-radius: 10px;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   pointer-events: none; /* Não atrapalha o clique do separator */
 }
 
@@ -41,9 +45,9 @@
   top: 50%;
   transform: translate(-50%, -50%);
   /* Efeito de 3 pontos usando box-shadow */
-  box-shadow: 
-    0 -8px 0 0 #fff, 
-    0 0 0 0 #fff, 
+  box-shadow:
+    0 -8px 0 0 #fff,
+    0 0 0 0 #fff,
     0 8px 0 0 #fff;
 }
 
@@ -55,9 +59,9 @@
   top: 50%;
   transform: translate(-50%, -50%);
   /* Efeito de 3 pontos usando box-shadow */
-  box-shadow: 
-    -8px 0 0 0 #fff, 
-    0 0 0 0 #fff, 
+  box-shadow:
+    -8px 0 0 0 #fff,
+    0 0 0 0 #fff,
     8px 0 0 0 #fff;
 }
 
@@ -71,4 +75,8 @@
 .xterm-screen {
   width: 100% !important;
   height: 100% !important;
+}
+
+.xterm-rows > div {
+  width: 90% !important;
 }
