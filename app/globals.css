@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #0277bd #333;
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #333;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #0277bd;
+  border-radius: 20px;
+  border: 3px solid #333;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  background: #1e1e1e;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  padding: 0.3em 1.2em;
+  font-size: 1em;
+  font-weight: 400;
+  font-family: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.25s;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap !important;
+}
+
+button:hover {
+  background-color: #0277bd90;
+  border-color: #0277bd;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+[role="separator"][aria-orientation="vertical"] {
+  width: 1px;
+}
+
+[role="separator"][aria-orientation="horizontal"] {
+  height: 1px;
+}
+
+[role="separator"][aria-orientation="horizontal"]::after {
+  transform: rotate(90deg);
+}
+
+[role="separator"] {
+  position: relative;
+  display: block;
+  background-color: #2d2d2d;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+[role="separator"]:focus-visible {
+  outline: none;
+}
+
+[role="separator"][data-separator="hover"],
+[role="separator"][data-separator="active"] {
+  background-color: #007acc !important;
+  box-shadow: 0 0 8px rgba(0, 122, 204, 0.4);
+  z-index: 10;
+}
+
+[role="separator"]::after {
+  content: "";
+  position: absolute;
+  background-color: #007acc;
+  box-shadow: 0 0 8px #000;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' fill='%23ffffff' viewBox='0 0 256 256'%3E%3Cpath d='M108,60A16,16,0,1,1,92,44,16,16,0,0,1,108,60Zm56,16a16,16,0,1,0-16-16A16,16,0,0,0,164,76ZM92,112a16,16,0,1,0,16,16A16,16,0,0,0,92,112Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,112ZM92,180a16,16,0,1,0,16,16A16,16,0,0,0,92,180Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,180Z'%3E%3C/path%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 3px;
+  opacity: 0;
+  height: 18px;
+  width: 18px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+
+[data-separator="hover"]::after,
+[data-separator="active"]::after {
+  opacity: 1;
+}
