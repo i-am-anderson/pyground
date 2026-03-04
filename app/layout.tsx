@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // @ts-ignore
 import "./globals.css";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +31,18 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/file-icons-js@1.0.3/css/style.css"
+          precedence="default"
         />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+
+        <Script
+          src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );
