@@ -41,6 +41,7 @@ const Terminal = () => {
       | "LOAD FAILURE"
       | "ATTENTION",
     message: string,
+    enter?: "init" | "final",
   ) => {
     const color = {
       LOG: "36m",
@@ -52,7 +53,7 @@ const Terminal = () => {
     }[status];
 
     if (status === "LOG") {
-      term.writeln("\r\n\x1b[36m---" + message + "---\x1b[0m");
+      term.writeln((enter === "init" ? "\n" : "") + "\r\n\x1b[" + color + "--- " + message + " ---\x1b[0m" + (enter === "final" ? "\n" : ""));
     } else {
       term.writeln(
         "\r\n\x1b[90m---\x1b[0m \x1b[1;" +
@@ -200,7 +201,7 @@ builtins.input = custom_input
       return;
     }
 
-    formatPrint(term, "LOG", "Início da execução");
+    formatPrint(term, "LOG", "Início da execução", "final");
     try {
       pyodideRef.current.setStdout({
         batched: (str: string) => term.write(str),
@@ -223,7 +224,7 @@ await __main__()
 
       await pyodideRef.current.runPythonAsync(wrappedCode);
 
-      formatPrint(term, "LOG", "Finalizado com sucesso");
+      formatPrint(term, "LOG", "Finalizado com sucesso", "init");
     } catch (err) {
       formatPrint(
         term,

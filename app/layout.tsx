@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 // @ts-ignore
 import "./globals.css";
 import Script from "next/script";
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
       >
         {children}
 
+        <Analytics mode="production" />;
         <Script
           src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
           strategy="beforeInteractive"
