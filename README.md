@@ -37,6 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Docs
 ```bash
-npm install react-arborist react-resizable-panels react-syntax-highlighter xterm xterm-addon-fit zustand
+npm install react-arborist react-resizable-panels @monaco-editor/react@next xterm xterm-addon-fit zustand
 npm install use-resize-observer --legacy-peer-deps
 ```

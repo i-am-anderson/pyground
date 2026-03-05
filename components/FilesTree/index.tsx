@@ -19,7 +19,7 @@ type FileTree = {
   children?: FileTree[];
 };
 
-const FilesTree = () => {
+export default function FilesTree() {
   const params = useParams();
   const repo = (params?.repo as string) || "";
   const branch = (params?.branch as string) || "main";
@@ -106,42 +106,13 @@ const FilesTree = () => {
 
   if (loading) return <Loading />;
   return (
-    <div
-      className="tree-container"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        borderRight: "1px solid #333",
-        backgroundColor: "#1d1f21",
-      }}
-    >
-      <div
-        style={{
-          padding: "8px 15px",
-          backgroundColor: "#252525",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #333",
-        }}
-      >
-        <span
-          style={{
-            color: "#aaa",
-            fontSize: "14px",
-            fontWeight: "bold",
-            padding: "5px 0",
-          }}
-        >
+    <div className="flex flex-col h-full border-r border-[#333] bg-[#1d1f21]">
+      <div className="py-2 px-3.75 bg-[#252525] flex justify-between items-center border-b border-[#333]">
+        <span className="text-[#aaa] text-base font-bold py-1.25">
           Explorer
         </span>
       </div>
-      <div
-        className="tree-parent"
-        style={{ flexGrow: 1, minBlockSize: 0 }}
-        ref={ref}
-      >
+      <div className="grow min-[block-size-0]" ref={ref}>
         <Tree
           initialData={treeData}
           openByDefault={false}
@@ -152,19 +123,23 @@ const FilesTree = () => {
           paddingBottom={5}
         >
           {({ node, style, dragHandle }) => (
-            <div style={style} ref={dragHandle} className="node-item">
+            <div
+              style={style}
+              ref={dragHandle}
+              className={`border border-transparent ${node.data.name === name ? "bg-[#333]" : "bg-transparent hover:bg-[#0277bd90]"} cursor-pointer hover:border-[#0277bd] transition-all duration-250`}
+            >
               <span onClick={() => node.toggle()}>
                 {node.isInternal ? (
-                  <button>
+                  <button
+                    className={`flex items-center gap-2.5 px-5 py-1.5 text-sm font-normal font-inherit w-full text-center whitespace-nowrap text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 cursor-pointer`}
+                  >
                     {node.isOpen ? <OpenFolderIcon /> : <CloseFolderIcon />}
                     {node.data.name}
                   </button>
                 ) : (
                   <button
                     onClick={() => handleClick(node.data.url, node.data.name)}
-                    style={{
-                      background: node.data.name === name ? "#333" : "",
-                    }}
+                    className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-sm font-normal font-inherit transition-all duration-250 w-full text-center whitespace-nowrap text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 cursor-pointer`}
                   >
                     {node.data.name === "fourOfour.md" ? (
                       <FourOFourIcon />
@@ -181,6 +156,4 @@ const FilesTree = () => {
       </div>
     </div>
   );
-};
-
-export default FilesTree;
+}

@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-const Terminal = () => {
+export default function Terminal() {
   const { ref, width, height } = useResizeObserver();
   const codeToRun = useCustomStore((state) => state.code);
   const name = useCustomStore((state) => state.name);
@@ -53,7 +53,15 @@ const Terminal = () => {
     }[status];
 
     if (status === "LOG") {
-      term.writeln((enter === "init" ? "\n" : "") + "\r\n\x1b[" + color + "--- " + message + " ---\x1b[0m" + (enter === "final" ? "\n" : ""));
+      term.writeln(
+        (enter === "init" ? "\n" : "") +
+          "\r\n\x1b[" +
+          color +
+          "--- " +
+          message +
+          " ---\x1b[0m" +
+          (enter === "final" ? "\n" : ""),
+      );
     } else {
       term.writeln(
         "\r\n\x1b[90m---\x1b[0m \x1b[1;" +
@@ -93,6 +101,7 @@ const Terminal = () => {
         rows: 15,
         convertEol: true,
         lineHeight: 1.3,
+        fontSize: 14,
       });
 
       const fitAddon = new FitAddon();
@@ -105,7 +114,7 @@ const Terminal = () => {
         fitAddon.fit();
       }
 
-      formatPrint(term, "STARTING", "Inicializando ambiente Python");
+      formatPrint(term, "STARTING", "Initializing the Python environment");
 
       // ======================================
       // CAPTURA DE INPUT DO TECLADO
@@ -137,7 +146,11 @@ const Terminal = () => {
       const setupPyodide = async () => {
         try {
           if (!window.loadPyodide) {
-            formatPrint(term, "CRITICAL ERROR", "CDN do Pyodide não encontrada.");
+            formatPrint(
+              term,
+              "CRITICAL ERROR",
+              "Pyodide CDN not found",
+            );
             return;
           }
 
@@ -163,13 +176,13 @@ builtins.input = custom_input
         `);
 
           setIsReady(true);
-          formatPrint(term, "READY", "Python 3.12 pronto para uso!");
+          formatPrint(term, "READY", "Python is ready to use.");
         } catch (err) {
           formatPrint(
             term,
             "LOAD FAILURE",
             (err as Error)?.message ||
-              "Erro desconhecido ao carregar o Pyodide.",
+              "Unknown error while loading Pyodide.",
           );
         }
       };
@@ -197,11 +210,11 @@ builtins.input = custom_input
     term.focus();
 
     if (!pyodideRef.current || !codeToRun) {
-      formatPrint(term, "ATTENTION", "Nenhum código disponível para execução.");
+      formatPrint(term, "ATTENTION", "No code available for execution.");
       return;
     }
 
-    formatPrint(term, "LOG", "Início da execução", "final");
+    formatPrint(term, "LOG", "Start of execution", "final");
     try {
       pyodideRef.current.setStdout({
         batched: (str: string) => term.write(str),
@@ -224,12 +237,12 @@ await __main__()
 
       await pyodideRef.current.runPythonAsync(wrappedCode);
 
-      formatPrint(term, "LOG", "Finalizado com sucesso", "init");
+      formatPrint(term, "LOG", "Completed successfully", "init");
     } catch (err) {
       formatPrint(
         term,
         "CRITICAL ERROR",
-        (err as Error)?.message || "Erro desconhecido no Python.",
+        (err as Error)?.message || "Unknown error in Python",
       );
     }
   };
@@ -270,26 +283,7 @@ await __main__()
         <button
           onClick={runPython}
           disabled={!isReady || !codeToRun || !name.includes(".py")}
-          style={{
-            backgroundColor:
-              isReady && codeToRun
-                ? name.includes(".py")
-                  ? "#0277BD"
-                  : "#f435"
-                : "#555",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            padding: "6px 20px",
-            cursor:
-              isReady && codeToRun
-                ? name.includes(".py")
-                  ? "pointer"
-                  : "not-allowed"
-                : "not-allowed",
-            fontWeight: "bold",
-            width: "auto",
-          }}
+          className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-base font-bold font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap rounded-sm text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${isReady && codeToRun && name.includes(".py") ? "bg-[#0277BD] cursor-pointer hover:bg-[#0277bd90] hover:border-[#0277bd]" : "bg-[#555] cursor-not-allowed"}`}
         >
           {isReady
             ? name.includes(".py")
@@ -299,17 +293,7 @@ await __main__()
         </button>
       </div>
 
-      <div
-        ref={terminalRef}
-        style={{
-          width: "100%",
-          height: "calc(100% - 50px)",
-          paddingLeft: "10px",
-          backgroundColor: "#1d1f21",
-        }}
-      />
+      <div ref={terminalRef} className="w-full h-[calc(100%-50px)] pl-2.5" />
     </div>
   );
-};
-
-export default Terminal;
+}

@@ -13,5 +13,5 @@ export default function FileIcon({ filename }: { filename: string }) {
     }
   }, [filename]);
 
-  return <i className={iconClass} style={{ fontSize: "1em" }} />;
+  return <i className={`${iconClass} text-base`} />;
 }

@@ -17,22 +17,25 @@
 
 * {
   box-sizing: border-box;
-  scrollbar-width: thin;
-  scrollbar-color: #0277bd #333;
 }
 
-*::-webkit-scrollbar {
-  width: 12px;
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-*::-webkit-scrollbar-track {
-  background: #333;
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
 }
 
-*::-webkit-scrollbar-thumb {
-  background-color: #0277bd;
-  border-radius: 20px;
-  border: 3px solid #333;
+::-webkit-scrollbar-thumb {
+  background: #66666685;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
 }
 
 #root {
@@ -45,33 +48,7 @@ body {
   margin: 0;
   padding: 0;
   background: #1e1e1e;
-}
-
-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid transparent;
-  padding: 0.3em 1.2em;
-  font-size: 1em;
-  font-weight: 400;
-  font-family: inherit;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.25s;
-  width: 100%;
-  text-align: left;
-  white-space: nowrap !important;
-}
-
-button:hover {
-  background-color: #0277bd90;
-  border-color: #0277bd;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  overflow: hidden;
 }
 
 [role="separator"][aria-orientation="vertical"] {

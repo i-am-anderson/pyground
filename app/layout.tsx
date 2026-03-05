@@ -40,7 +40,7 @@ export default function RootLayout({
       >
         {children}
 
-        <Analytics mode="production" />;
+        <Analytics mode="production" />
         <Script
           src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"
           strategy="beforeInteractive"
