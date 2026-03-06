@@ -119,7 +119,7 @@ export default function FilesTree() {
           width={width}
           height={height}
           indent={20}
-          rowHeight={35}
+          rowHeight={38}
           paddingBottom={5}
         >
           {({ node, style, dragHandle }) => (
