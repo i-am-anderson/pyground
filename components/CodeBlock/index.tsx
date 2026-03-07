@@ -69,6 +69,9 @@ export default function CodeBlock() {
         minimap: {
           enabled: false,
         },
+        stickyScroll: {
+          enabled: false,
+        },
         wordWrap: "on",
         fontSize: 14,
         fontLigatures: true,

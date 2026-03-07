@@ -101,7 +101,7 @@ export default function Terminal() {
         rows: 15,
         convertEol: true,
         lineHeight: 1.3,
-        fontSize: 14,
+        fontSize: 16,
       });
 
       const fitAddon = new FitAddon();
@@ -146,11 +146,7 @@ export default function Terminal() {
       const setupPyodide = async () => {
         try {
           if (!window.loadPyodide) {
-            formatPrint(
-              term,
-              "CRITICAL ERROR",
-              "Pyodide CDN not found",
-            );
+            formatPrint(term, "CRITICAL ERROR", "Pyodide CDN not found");
             return;
           }
 
@@ -181,8 +177,7 @@ builtins.input = custom_input
           formatPrint(
             term,
             "LOAD FAILURE",
-            (err as Error)?.message ||
-              "Unknown error while loading Pyodide.",
+            (err as Error)?.message || "Unknown error while loading Pyodide.",
           );
         }
       };
@@ -251,39 +246,14 @@ await __main__()
   // RENDER
   // ===============================
   return (
-    <div
-      style={{
-        overflow: "hidden",
-        height: "100%",
-        width: "100%",
-      }}
-      ref={ref}
-    >
-      <div
-        style={{
-          padding: "8px 15px",
-          backgroundColor: "#252525",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #333",
-          borderTop: "1px solid #333",
-        }}
-      >
-        <span
-          style={{
-            color: "#aaa",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          Console Python
-        </span>
+    <div className="overflow-hidden h-full w-full" ref={ref}>
+      <div className="py-1.25 px-3.75 bg-[#252525] flex justify-between items-center border-b border-t border-[#333]">
+        <span className="text-[#aaa] text-sm font-bold">Console Python</span>
 
         <button
           onClick={runPython}
           disabled={!isReady || !codeToRun || !name.includes(".py")}
-          className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-base font-bold font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap rounded-sm text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${isReady && codeToRun && name.includes(".py") ? "bg-[#0277BD] cursor-pointer hover:bg-[#0277bd90] hover:border-[#0277bd]" : "bg-[#555] cursor-not-allowed"}`}
+          className={`flex items-center gap-2.5 border border-transparent px-5 py-1 text-sm font-bold font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap rounded-sm text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${isReady && codeToRun && name.includes(".py") ? "bg-[#0277BD] cursor-pointer hover:bg-[#0277bd90] hover:border-[#0277bd]" : "bg-[#555] cursor-not-allowed"}`}
         >
           {isReady
             ? name.includes(".py")

@@ -24,8 +24,8 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background: transparent;
+  -webkit-box-shadow: inset 0 0 1px #cccccc;
   border-radius: 0;
 }
 
@@ -109,4 +109,11 @@ body {
 [data-separator="hover"]::after,
 [data-separator="active"]::after {
   opacity: 1;
+}
+
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background,
+.xterm-viewport {
+  background: transparent !important;
 }

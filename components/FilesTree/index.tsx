@@ -36,35 +36,53 @@ export default function FilesTree() {
     addUrl(url);
   };
 
-  const buildTree = (files: TreeProps[]) => {
-    const root: FileTree[] = [];
-    const map: { [key: string]: any } = { "": { children: root } };
+const buildTree = (files: TreeProps[]) => {
+  const root: FileTree[] = [];
+  const map: { [key: string]: any } = { "": { children: root } };
 
-    files.forEach((file) => {
-      const parts = file.path.split("/");
-      let currentPath = "";
+  files.forEach((file) => {
+    const parts = file.path.split("/");
+    let currentPath = "";
 
-      parts.forEach((part, index) => {
-        const parentPath = currentPath;
-        currentPath = currentPath ? `${currentPath}/${part}` : part;
+    parts.forEach((part, index) => {
+      const parentPath = currentPath;
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
 
-        if (!map[currentPath]) {
-          const newNode = {
-            id: file.sha + index, // ID único
-            name: part,
-            ...(file.type === "tree" || index < parts.length - 1
-              ? { children: [] }
-              : {}),
-            url: file.url,
-          };
-          map[currentPath] = newNode;
-          map[parentPath].children.push(newNode);
-        }
-      });
+      if (!map[currentPath]) {
+        const isFolder = file.type === "tree" || index < parts.length - 1;
+        const newNode = {
+          id: file.sha + index,
+          name: part,
+          ...(isFolder ? { children: [] } : {}),
+          url: file.url,
+        };
+        map[currentPath] = newNode;
+        map[parentPath].children.push(newNode);
+      }
+    });
+  });
+
+  const sortTree = (nodes: any[]) => {
+    nodes.sort((a, b) => {
+      const aIsFolder = !!a.children;
+      const bIsFolder = !!b.children;
+
+      if (aIsFolder && !bIsFolder) return -1;
+      if (!aIsFolder && bIsFolder) return 1;
+
+      return a.name.localeCompare(b.name);
     });
 
-    return root;
+    nodes.forEach((node) => {
+      if (node.children) {
+        sortTree(node.children);
+      }
+    });
   };
+
+  sortTree(root);
+  return root;
+};
 
   useEffect(() => {
     const fetchTreeData = async () => {
@@ -106,11 +124,9 @@ export default function FilesTree() {
 
   if (loading) return <Loading />;
   return (
-    <div className="flex flex-col h-full border-r border-[#333] bg-[#1d1f21]">
+    <div className="flex flex-col h-full border-r border-[#333] bg-transparent">
       <div className="py-2 px-3.75 bg-[#252525] flex justify-between items-center border-b border-[#333]">
-        <span className="text-[#aaa] text-base font-bold py-1.25">
-          Explorer
-        </span>
+        <span className="text-[#aaa] text-sm font-bold py-1">Explorer</span>
       </div>
       <div className="grow min-[block-size-0]" ref={ref}>
         <Tree
