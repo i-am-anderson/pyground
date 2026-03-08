@@ -9,11 +9,11 @@ export type TreeProps = {
   size?: number;
 };
 
-type RepoProps = {
-  sha: string;
+export type RepoProps = {
+  sha?: string;
   tree: TreeProps[];
-  url: string;
-  truncated: boolean;
+  url?: string;
+  truncated?: boolean;
 };
 
 export type ActionResponse = {

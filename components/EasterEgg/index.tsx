@@ -1,3 +1,5 @@
+"use client";
+
 import useCustomStore from "@/store/useCustomStore";
 
 export default function EasterEgg() {

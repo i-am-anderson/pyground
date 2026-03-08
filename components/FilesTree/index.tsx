@@ -6,7 +6,7 @@ import useResizeObserver from "use-resize-observer";
 import useCustomStore from "@/store/useCustomStore";
 import OpenFolderIcon from "@/assets/OpenFolderIcon";
 import CloseFolderIcon from "@/assets/CloseFolderIcon";
-import { getRepoTreeAction, TreeProps } from "@/actions/getRepoTree";
+import { getRepoTreeAction, RepoProps, TreeProps } from "@/actions/getRepoTree";
 import Loading from "@/components/Loading";
 import FileIcon from "../FileIcon";
 import FourOFourIcon from "@/assets/FourOFourIcon";
@@ -19,7 +19,7 @@ type FileTree = {
   children?: FileTree[];
 };
 
-export default function FilesTree() {
+export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
   const params = useParams();
   const repo = (params?.repo as string) || "";
   const branch = (params?.branch as string) || "main";
@@ -36,53 +36,55 @@ export default function FilesTree() {
     addUrl(url);
   };
 
-const buildTree = (files: TreeProps[]) => {
-  const root: FileTree[] = [];
-  const map: { [key: string]: any } = { "": { children: root } };
-
-  files.forEach((file) => {
-    const parts = file.path.split("/");
-    let currentPath = "";
-
-    parts.forEach((part, index) => {
-      const parentPath = currentPath;
-      currentPath = currentPath ? `${currentPath}/${part}` : part;
-
-      if (!map[currentPath]) {
-        const isFolder = file.type === "tree" || index < parts.length - 1;
-        const newNode = {
-          id: file.sha + index,
-          name: part,
-          ...(isFolder ? { children: [] } : {}),
-          url: file.url,
-        };
-        map[currentPath] = newNode;
-        map[parentPath].children.push(newNode);
-      }
+  const buildTree = (files: TreeProps[]) => {
+    const root: FileTree[] = [];
+    const map: { [key: string]: any } = { "": { children: root } };
+    
+    files.forEach((file) => {
+      const parts = file.path.split("/");
+      let currentPath = "";
+      
+      parts.forEach((part, index) => {
+        const parentPath = currentPath;
+        currentPath = currentPath ? `${currentPath}/${part}` : part;
+        
+        
+        if (!map[currentPath]) {
+          const isFolder = file.type === "tree" || index < parts.length - 1;
+          const newNode = {
+            id: file.sha + index,
+            name: part,
+            ...(isFolder ? { children: [] } : {}),
+            url: file.url,
+          };
+          map[currentPath] = newNode;
+          map[parentPath].children.push(newNode);
+        }
+      });
     });
-  });
+    
+    const sortTree = (nodes: any[]) => {
+      nodes.sort((a, b) => {
+        const aIsFolder = !!a.children;
+        const bIsFolder = !!b.children;
 
-  const sortTree = (nodes: any[]) => {
-    nodes.sort((a, b) => {
-      const aIsFolder = !!a.children;
-      const bIsFolder = !!b.children;
+        if (aIsFolder && !bIsFolder) return -1;
+        if (!aIsFolder && bIsFolder) return 1;
 
-      if (aIsFolder && !bIsFolder) return -1;
-      if (!aIsFolder && bIsFolder) return 1;
+        return a.name.localeCompare(b.name);
+      });
 
-      return a.name.localeCompare(b.name);
-    });
+      nodes.forEach((node) => {
+        if (node.children) {
+          sortTree(node.children);
+        }
+      });
+    };
 
-    nodes.forEach((node) => {
-      if (node.children) {
-        sortTree(node.children);
-      }
-    });
+    sortTree(root);
+
+    return root;
   };
-
-  sortTree(root);
-  return root;
-};
 
   useEffect(() => {
     const fetchTreeData = async () => {
@@ -94,12 +96,12 @@ const buildTree = (files: TreeProps[]) => {
           repo,
           branch,
         });
-
         if (!result.success) {
           setError(result.error || "Erro desconhecido");
           // Fallback default
-          setTreeData([{ id: "fourOfour", name: "fourOfour.md", url: "" }]);
-          addName("fourOfour.md");
+          addName("README.md");
+          setTreeData(buildTree(defaultTree.tree));
+          addUrl("/public/mock/README.md")
           return;
         }
 

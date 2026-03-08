@@ -7,8 +7,9 @@ import FilesTree from "@/components/FilesTree";
 import Loading from "@/components/Loading";
 import EasterEgg from "../EasterEgg";
 import { useEffect, useState } from "react";
+import { RepoProps } from "@/actions/getRepoTree";
 
-export default function Main() {
+export default function Main({ defaultTree }: { defaultTree: RepoProps }) {
   const [showConsole, setShowConsole] = useState(false);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Main() {
       <div className="absolute top-0 left-0 w-full h-full bg-[#1d1f21] opacity-96"></div>
       <Group orientation="horizontal" className="relative">
         <Panel defaultSize={20} minSize={100}>
-          <FilesTree />
+          <FilesTree defaultTree={defaultTree} />
         </Panel>
 
         <Separator />

@@ -1,7 +1,9 @@
+"use client";
+
 import useCustomStore from "@/store/useCustomStore";
 import base64Decoded from "@/utils/base64Decoded";
 import { useEffect, useState } from "react";
-import { FileProps, getRepoFileAction } from "@/actions/getRepoFile";
+import { getRepoFileAction } from "@/actions/getRepoFile";
 import Loading from "@/components/Loading";
 import { Editor } from "@monaco-editor/react";
 import extensionToLangName from "@/utils/extensionToLangName";
@@ -15,9 +17,6 @@ export default function CodeBlock() {
   const [extension, setExtension] = useState<string>("javascript");
   const [error, setError] = useState<string | null>(null);
 
-  const errorText =
-    "📋 O Mural de 'Ops!' (ou o que pode ter acontecido)\n\nAté os melhores sistemas têm seus dias de 'segunda-feira', e aqui estão os suspeitos de costume:\n\n- 🕵️‍♂️ O Repositório Invisível: Sabe quando você esquece onde deixou a chave? O app não achou o repositório. Pode ser um erro de digitação ou ele foi deletado.\n\n- 🔐 'Só Entra com Convite': O repositório é privado! Ele é mais fechado que cofre de banco e, sem a chave certa, não conseguimos ler nada.\n\n- 🚦 Calma lá, Flash!: Você atingiu o 'Rate Limit'. A internet pediu para você dar uma segurada, tomar um café e voltar daqui a pouco.\n\n- 🌀 O Abismo do Desconhecido: Algum erro misterioso aconteceu. Pode ser o Wi-Fi soluçando ou um servidor tropeçando nos cabos.\n\n💡 Dica: Tente atualizar a página ou verificar sua conexão. Se nada resolver, o jeito é respirar fundo e tentar de novo em instantes!";
-
   const handleChange = (value: string | undefined) => {
     addCode(value || "");
   };
@@ -30,19 +29,36 @@ export default function CodeBlock() {
         setLoading(true);
         setError(null);
 
-        const result = await getRepoFileAction({
-          url,
-        });
+        if (url.includes("https://")) {
+          const result = await getRepoFileAction({
+            url,
+          });
 
-        if (!result.success) {
-          setError(result.error || "Erro desconhecido");
-          return;
-        }
+          if (!result.success) {
+            setError(result.error || "Erro desconhecido");
+            return;
+          }
 
-        if (result.data?.content) {
-          const langExt = name.split(".").pop() || "javascript";
-          setExtension(langExt);
-          addCode(base64Decoded(result.data.content || ""));
+          if (result.data?.content) {
+            const langExt = name.split(".").pop() || "javascript";
+            setExtension(langExt);
+            addCode(base64Decoded(result.data.content || ""));
+          }
+        } else {
+          const result = await fetch(url.replace("/public", ""));
+
+          if (!result) {
+            setError("Erro desconhecido");
+            return;
+          }
+
+          const text = await result.text();
+
+          if (text) {
+            const langExt = name.split(".").pop() || "javascript";
+            setExtension(langExt);
+            addCode(text);
+          }
         }
       } catch (err) {
         setError("Erro crítico ao carregar os arquivos.");
@@ -61,8 +77,7 @@ export default function CodeBlock() {
       defaultLanguage="python"
       language={extensionToLangName(extension)}
       onChange={handleChange}
-      value={code && !error ? code : errorText}
-      defaultValue={errorText}
+      value={code && !error ? code : ""}
       theme="vs-dark"
       loading={<Loading />}
       options={{
