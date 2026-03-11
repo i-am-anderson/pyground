@@ -1,42 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+```text
+$$$$$$$\ $$\     $$\  $$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\ $$\   $$\ $$$$$$$\  
+$$  __$$\\$$\   $$  |$$  __$$\ $$  __$$\ $$  __$$\ $$ |  $$ |$$$\  $$ |$$  __$$\ 
+$$ |  $$ |\$$\ $$  / $$ /  \__|$$ |  $$ |$$ /  $$ |$$ |  $$ |$$$$\ $$ |$$ |  $$ |
+$$$$$$$  | \$$$$  /  $$ |$$$$\ $$$$$$$  |$$ |  $$ |$$ |  $$ |$$ $$\$$ |$$ |  $$ |
+$$  ____/   \$$  /   $$ |\_$$ |$$  __$$< $$ |  $$ |$$ |  $$ |$$ \$$$$ |$$ |  $$ |
+$$ |         $$ |    $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |$$ |  $$ |
+$$ |         $$ |    \$$$$$$  |$$ |  $$ | $$$$$$  |\$$$$$$  |$$ | \$$ |$$$$$$$  |
+\__|         \__|     \______/ \__|  \__| \______/  \______/ \__|  \__|\_______/ 
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**PyGround** é um playground Python moderno e minimalista que roda inteiramente no navegador. O objetivo é fornecer uma experiência visual e interativa para execução de código sem a necessidade de infraestruturas complexas de sandbox ou servidores backend pesados.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Funcionalidades
 
-## Learn More
+* **Execução Client-side**: Graças ao **Pyodide**, seu código Python roda direto no WebAssembly.
+* **Terminal Integrado**: Experiência de console real com **XTerm.js**.
+* **Editor Profissional**: Edição de código rica com **Monaco Editor** (o motor do VS Code).
+* **Navegação de Arquivos**: Estrutura de diretórios fluida usando **React Arborist**.
+* **Layout Adaptável**: Interface totalmente redimensionável com **React Resizable Panels**.
+* **Integração com GitHub**: Carregue repositórios públicos diretamente pela URL.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Stack Tecnológica
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O projeto utiliza o que há de mais moderno no ecossistema Web para performance e UX:
 
-## Deploy on Vercel
+| Ferramenta | Função |
+| --- | --- |
+| **Pyodide** | Interpretador Python via WebAssembly (WASM). |
+| **XTerm.js** | Emulação de terminal para exibição de logs e outputs. |
+| **Monaco Editor** | Editor de código com syntax highlighting e intellisense. |
+| **React Arborist** | Gerenciamento visual da árvore de arquivos. |
+| **Zustand** | Gerenciamento de estado leve e eficiente. |
+| **React Resizable Panels** | Sistema de drag-and-drop para painéis da interface. |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚦 Modos de Uso
 
-## Docs
+A aplicação é roteada para aceitar diferentes contextos do GitHub de forma dinâmica:
+
+* **Local puro**: `http://localhost:3000/`
+* **Repositório Específico**: `http://localhost:3000/usuario/repo`
+* **Branch Específica**: `http://localhost:3000/usuario/repo/main`
+* **Com Flags de Configuração**:
+* `?c=true`: Habilita persistência em cache.
+* `?c=false`: Força o recarregamento dos arquivos.
+
+
+
+---
+
+## 📦 Instalação e Setup
+
+Para replicar o ambiente ou instalar as dependências principais, execute:
+
 ```bash
-npm install react-arborist react-resizable-panels @monaco-editor/react@next xterm xterm-addon-fit zustand
-npm install use-resize-observer --legacy-peer-deps
+# Dependências de UI e Editor
+npm install react-arborist react-resizable-panels @monaco-editor/react@next
+
+# Dependências de Terminal
+npm install @xterm/xterm @xterm/addon-fit
+
+# State Management e Hooks
+npm install zustand use-resize-observer --legacy-peer-deps
+
 ```
+
+---
+
+## 🏗️ Arquitetura de Dados
+
+A lógica principal reside na ponte entre o **Monaco Editor** (onde o usuário escreve), o **Pyodide** (que processa o código no worker) e o **XTerm.js** (que captura o `stdout` e exibe o resultado).
+
+---

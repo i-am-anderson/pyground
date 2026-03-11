@@ -9,7 +9,6 @@ import CloseFolderIcon from "@/assets/CloseFolderIcon";
 import { getRepoTreeAction, RepoProps, TreeProps } from "@/actions/getRepoTree";
 import Loading from "@/components/Loading";
 import FileIcon from "../FileIcon";
-import FourOFourIcon from "@/assets/FourOFourIcon";
 import { useParams } from "next/navigation";
 
 type FileTree = {
@@ -38,32 +37,82 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
 
   const buildTree = (files: TreeProps[]) => {
     const root: FileTree[] = [];
-    const map: { [key: string]: any } = { "": { children: root } };
-    
+    // Guarda referências de pastas para não precisar procurá-las manualmente
+    const folderCache = new Map<string, FileTree>();
+
     files.forEach((file) => {
-      const parts = file.path.split("/");
-      let currentPath = "";
-      
+      /**
+       * ENTRA: file.path (ex: "public\\mock\\pasta\\video.mp4")
+       * Substitui barras invertidas e remove o prefixo fixo.
+       * SAI: ["pasta", "video.mp4"] (Array de strings limpo)
+       */
+      const parts = file.path
+        .replace(/\\/g, "/")
+        .replace("public/mock/", "")
+        .split("/");
+
+      // Reseta o ponteiro para o topo da árvore a cada novo arquivo
+      let currentLevel = root;
+      let fullPath = "";
+
       parts.forEach((part, index) => {
-        const parentPath = currentPath;
-        currentPath = currentPath ? `${currentPath}/${part}` : part;
-        
-        
-        if (!map[currentPath]) {
-          const isFolder = file.type === "tree" || index < parts.length - 1;
-          const newNode = {
-            id: file.sha + index,
+        const isLastPart = index === parts.length - 1;
+
+        /**
+         * ENTRA: part (ex: "pasta")
+         * Acumula o nome para criar uma chave única.
+         * SAI: fullPath (ex: "pasta" na 1ª volta, "pasta/sub" na 2ª)
+         */
+        fullPath += (fullPath ? "/" : "") + part;
+
+        /**
+         * ENTRA: fullPath (Chave do Map)
+         * O Map verifica se já existe um objeto na memória para este caminho.
+         * SAI: existingNode (O objeto FileTree encontrado ou undefined)
+         */
+        let existingNode = folderCache.get(fullPath);
+
+        if (!existingNode) {
+          /**
+           * ENTRA: Dados brutos do arquivo original (file.sha, file.url, etc)
+           * Cria um objeto FileTree. Define se ele terá um array 'children' vazio.
+           * SAI: newNode (Um novo objeto estruturado na memória)
+           */
+          const isFolder = file.type === "tree" || !isLastPart;
+
+          const newNode: FileTree = {
+            id: `${file.sha}-${index}`,
             name: part,
+            url: isLastPart ? file.url : "",
             ...(isFolder ? { children: [] } : {}),
-            url: file.url,
           };
-          map[currentPath] = newNode;
-          map[parentPath].children.push(newNode);
+
+          // Adiciona o objeto ao nível atual da árvore (referência de memória)
+          currentLevel.push(newNode);
+          existingNode = newNode;
+
+          /**
+           * ENTRA: newNode
+           * Salva a referência no Map para que o próximo arquivo saiba que essa pasta já existe.
+           * SAI: Map atualizado.
+           */
+          if (isFolder) {
+            folderCache.set(fullPath, newNode);
+          }
+        }
+
+        /**
+         * ENTRA: existingNode.children
+         * Altera o ponteiro 'currentLevel' para apontar para dentro da pasta atual.
+         * SAI: A próxima 'part' do loop será inserida dentro deste array.
+         */
+        if (existingNode.children) {
+          currentLevel = existingNode.children;
         }
       });
     });
-    
-    const sortTree = (nodes: any[]) => {
+
+    const sortTree = (nodes: FileTree[]) => {
       nodes.sort((a, b) => {
         const aIsFolder = !!a.children;
         const bIsFolder = !!b.children;
@@ -101,7 +150,7 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
           // Fallback default
           addName("README.md");
           setTreeData(buildTree(defaultTree.tree));
-          addUrl("/public/mock/README.md")
+          addUrl("/public/mock/README.md");
           return;
         }
 
@@ -122,6 +171,7 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
     };
 
     fetchTreeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addUrl]);
 
   if (loading) return <Loading />;
@@ -140,16 +190,15 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
           rowHeight={38}
           paddingBottom={5}
         >
-          {({ node, style, dragHandle }) => (
+          {({ node, style }) => (
             <div
               style={style}
-              ref={dragHandle}
-              className={`border border-transparent ${node.data.name === name ? "bg-[#333]" : "bg-transparent hover:bg-[#0277bd90]"} cursor-pointer hover:border-[#0277bd] transition-all duration-250`}
+              className={`border border-transparent ${node.data.name === name ? "bg-[#33333380]" : "bg-transparent hover:bg-[#0277bd80]"} cursor-pointer hover:border-[#0277bd] transition-all duration-250`}
             >
               <span onClick={() => node.toggle()}>
                 {node.isInternal ? (
                   <button
-                    className={`flex items-center gap-2.5 px-5 py-1.5 text-sm font-normal font-inherit w-full text-center whitespace-nowrap text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 cursor-pointer`}
+                    className={`flex items-center gap-2.5 px-5 py-1.5 text-sm font-normal font-inherit w-auto text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
                   >
                     {node.isOpen ? <OpenFolderIcon /> : <CloseFolderIcon />}
                     {node.data.name}
@@ -157,13 +206,9 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
                 ) : (
                   <button
                     onClick={() => handleClick(node.data.url, node.data.name)}
-                    className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-sm font-normal font-inherit transition-all duration-250 w-full text-center whitespace-nowrap text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 cursor-pointer`}
+                    className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-sm font-normal font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
                   >
-                    {node.data.name === "fourOfour.md" ? (
-                      <FourOFourIcon />
-                    ) : (
-                      <FileIcon filename={node.data.name} />
-                    )}
+                    <FileIcon filename={node.data.name} />
                     {node.data.name}
                   </button>
                 )}

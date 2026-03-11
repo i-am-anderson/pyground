@@ -25,7 +25,7 @@
 
 ::-webkit-scrollbar-track {
   background: transparent;
-  -webkit-box-shadow: inset 0 0 1px #cccccc;
+  -webkit-box-shadow: inset 0 0 1px #777;
   border-radius: 0;
 }
 
@@ -114,6 +114,16 @@ body {
 .monaco-editor,
 .monaco-editor .margin,
 .monaco-editor-background,
-.xterm-viewport {
+.xterm-viewport,
+.xterm-screen,
+.xterm-scrollable-element {
   background: transparent !important;
+}
+
+.scrollbar.vertical, .scrollbar.vertical .slider {
+  width: 10px !important;
+}
+
+.invisible.scrollbar.vertical, .visible.scrollbar.verticale {
+  opacity: 1 !important;
 }

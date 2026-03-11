@@ -6,17 +6,9 @@ import CodeBlock from "@/components/CodeBlock";
 import FilesTree from "@/components/FilesTree";
 import Loading from "@/components/Loading";
 import EasterEgg from "../EasterEgg";
-import { useEffect, useState } from "react";
 import { RepoProps } from "@/actions/getRepoTree";
 
-export default function Main({ defaultTree }: { defaultTree: RepoProps }) {
-  const [showConsole, setShowConsole] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setShowConsole(params.get("console") === "false" ? false : true);
-  }, []);
-
+export default function Main({ defaultTree, c }: { defaultTree: RepoProps, c: boolean }) {
   const Terminal = dynamic(() => import("@/components/Terminal"), {
     ssr: false,
     loading: () => <Loading />,
@@ -32,7 +24,7 @@ export default function Main({ defaultTree }: { defaultTree: RepoProps }) {
 
         <Separator />
 
-        {showConsole ? (
+        {c ? (
           <Panel defaultSize={80}>
             <Group orientation="vertical">
               <Panel defaultSize={65} minSize={100}>

@@ -3,10 +3,32 @@ import Main from "@/components/Main";
 import { createHash } from "crypto";
 import directoryTree from "directory-tree";
 
-export default function HomePage() {
-  const treeList: any[] = [];
+type ItemProps = {
+  path: string;
+  type: string;
+  size: number;
+  children: ItemProps[];
+};
 
-  const flattenTree = (item: any) => {
+type TreeProps = {
+  path: string;
+  type: "tree" | "blob";
+  size: number;
+  mode: "040000" | "100644";
+  sha: string;
+  url: string;
+};
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const c = (await searchParams).c;
+
+  const treeList: TreeProps[] = [];
+
+  const flattenTree = (item: ItemProps) => {
     const sha = createHash("sha1").update(item.path).digest("hex");
 
     treeList.push({
@@ -28,7 +50,7 @@ export default function HomePage() {
   });
 
   if (rawTree) {
-    flattenTree(rawTree);
+    flattenTree(rawTree as ItemProps);
   }
 
   treeList.shift();
@@ -37,5 +59,10 @@ export default function HomePage() {
     tree: treeList,
   };
 
-  return <Main defaultTree={defaultTree} />;
+  return (
+    <Main
+      defaultTree={defaultTree}
+      c={c === "false" ? false : true}
+    />
+  );
 }

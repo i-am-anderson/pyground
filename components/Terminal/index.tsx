@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import useResizeObserver from "use-resize-observer";
 // @ts-ignore
-import "xterm/css/xterm.css";
+import "@xterm/xterm/css/xterm.css";
 import useCustomStore from "@/store/useCustomStore";
 
 declare global {
@@ -86,8 +86,8 @@ export default function Terminal() {
 
   useEffect(() => {
     const setupTerminal = async () => {
-      const XTermModule = await import("xterm");
-      const { FitAddon } = await import("xterm-addon-fit");
+      const XTermModule = await import("@xterm/xterm");
+      const { FitAddon } = await import("@xterm/addon-fit");
       const XTerm = XTermModule.Terminal;
 
       if (xtermRef.current) return; // evita dupla execução
