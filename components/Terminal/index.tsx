@@ -101,7 +101,7 @@ export default function Terminal() {
         rows: 15,
         convertEol: true,
         lineHeight: 1.3,
-        fontSize: 16,
+        fontSize: 14,
       });
 
       const fitAddon = new FitAddon();
