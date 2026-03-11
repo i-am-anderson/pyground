@@ -198,7 +198,7 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
               <span onClick={() => node.toggle()}>
                 {node.isInternal ? (
                   <button
-                    className={`flex items-center gap-2.5 px-5 py-1.5 text-sm font-normal font-inherit w-auto text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
+                    className={`flex items-center gap-2.5 px-5 py-1.5 text-sm font-normal font-inherit w-full text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
                   >
                     {node.isOpen ? <OpenFolderIcon /> : <CloseFolderIcon />}
                     {node.data.name}
@@ -206,7 +206,7 @@ export default function FilesTree({ defaultTree }: { defaultTree: RepoProps }) {
                 ) : (
                   <button
                     onClick={() => handleClick(node.data.url, node.data.name)}
-                    className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-sm font-normal font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
+                    className={`flex items-center gap-2.5 border border-transparent px-5 py-1.5 text-sm font-normal font-inherit transition-all duration-250 w-full text-center whitespace-nowrap text-white focus:outline-none cursor-pointer`}
                   >
                     <FileIcon filename={node.data.name} />
                     {node.data.name}

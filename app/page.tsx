@@ -2,6 +2,7 @@ import { RepoProps } from "@/actions/getRepoTree";
 import Main from "@/components/Main";
 import { createHash } from "crypto";
 import directoryTree from "directory-tree";
+import path from "path";
 
 type ItemProps = {
   path: string;
@@ -45,7 +46,9 @@ export default async function HomePage({
     }
   };
 
-  const rawTree = directoryTree("./public/mock", {
+  const mockPath = path.join(process.cwd(), 'public', 'mock');
+
+  const rawTree = directoryTree(mockPath, {
     attributes: ["size", "type"],
   });
 
