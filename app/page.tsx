@@ -32,13 +32,17 @@ export default async function HomePage({
   const flattenTree = (item: ItemProps) => {
     const sha = createHash("sha1").update(item.path).digest("hex");
 
+    const pathParts = item.path.split(/[\\/]mock[\\/]/);
+    const cleanPath =
+      pathParts.length > 1 ? pathParts[1] : path.basename(item.path);
+
     treeList.push({
-      path: item.path.replace("public/mock/", ""),
+      path: cleanPath,
       mode: item.type === "directory" ? "040000" : "100644",
       type: item.type === "directory" ? "tree" : "blob",
       size: item.size,
       sha: sha,
-      url: `/${item.path}`,
+      url: `/mock/${cleanPath}`,
     });
 
     if (item.children) {
@@ -46,7 +50,7 @@ export default async function HomePage({
     }
   };
 
-  const mockPath = path.join(process.cwd(), 'public', 'mock');
+  const mockPath = path.join(process.cwd(), "public", "mock");
 
   const rawTree = directoryTree(mockPath, {
     attributes: ["size", "type"],
@@ -62,10 +66,5 @@ export default async function HomePage({
     tree: treeList,
   };
 
-  return (
-    <Main
-      defaultTree={defaultTree}
-      c={c === "false" ? false : true}
-    />
-  );
+  return <Main defaultTree={defaultTree} c={c === "false" ? false : true} />;
 }
