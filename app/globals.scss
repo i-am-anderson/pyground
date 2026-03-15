@@ -127,3 +127,22 @@ body {
 .invisible.scrollbar.vertical, .visible.scrollbar.verticale {
   opacity: 1 !important;
 }
+
+[aria-level] {
+  box-sizing: border-box;
+    position: relative;
+}
+
+[aria-level]::before {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: #aaaaaa25;
+}
+
+@for $i from 2 through 100 {
+  [aria-level="#{$i}"]::before {
+    left: (($i - 1) * 20px) + 8px;
+  }
+}

@@ -28,18 +28,9 @@ export default function Terminal() {
 
   const [isReady, setIsReady] = useState(false);
 
-  // ===============================
-  // INICIALIZAÇÃO
-  // ===============================
   const formatPrint = (
     term: any,
-    status:
-      | "LOG"
-      | "STARTING"
-      | "CRITICAL ERROR"
-      | "READY"
-      | "LOAD FAILURE"
-      | "ATTENTION",
+    status: "LOG" | "STARTING" | "CRITICAL ERROR" | "READY" | "LOAD FAILURE" | "ATTENTION",
     message: string,
     enter?: "init" | "final",
   ) => {
@@ -55,22 +46,11 @@ export default function Terminal() {
     if (status === "LOG") {
       term.writeln(
         (enter === "init" ? "\n" : "") +
-          "\r\n\x1b[" +
-          color +
-          "--- " +
-          message +
-          " ---\x1b[0m" +
+          "\r\n\x1b[" + color + "--- " + message + " ---\x1b[0m" +
           (enter === "final" ? "\n" : ""),
       );
     } else {
-      term.writeln(
-        "\r\n\x1b[90m---\x1b[0m \x1b[1;" +
-          color +
-          status +
-          "\x1b[0m \x1b[90m" +
-          "-".repeat(40 - status.length) +
-          "\x1b[0m",
-      );
+      term.writeln("\r\n\x1b[90m---\x1b[0m \x1b[1;" + color + status + "\x1b[0m \x1b[90m" + "-".repeat(40 - status.length) + "\x1b[0m");
       term.writeln("\x1b[" + color + "    " + message + "\x1b[0m");
       term.writeln("\x1b[90m" + "-".repeat(45) + "\x1b[0m");
     }
@@ -78,9 +58,7 @@ export default function Terminal() {
 
   useEffect(() => {
     if (fitAddonRef.current && xtermRef.current) {
-      setTimeout(() => {
-        fitAddonRef.current.fit();
-      }, 10);
+      setTimeout(() => fitAddonRef.current.fit(), 10);
     }
   }, [width, height]);
 
@@ -90,14 +68,11 @@ export default function Terminal() {
       const { FitAddon } = await import("@xterm/addon-fit");
       const XTerm = XTermModule.Terminal;
 
-      if (xtermRef.current) return; // evita dupla execução
+      if (xtermRef.current) return;
 
       const term = new XTerm({
         cursorBlink: true,
-        theme: {
-          background: "#1d1f21",
-          foreground: "#f0f0f0",
-        },
+        theme: { background: "#1d1f21", foreground: "#f0f0f0" },
         rows: 15,
         convertEol: true,
         lineHeight: 1.3,
@@ -107,8 +82,8 @@ export default function Terminal() {
       const fitAddon = new FitAddon();
       fitAddonRef.current = fitAddon;
       term.loadAddon(fitAddon);
-
       xtermRef.current = term;
+
       if (terminalRef.current) {
         term.open(terminalRef.current);
         fitAddon.fit();
@@ -116,27 +91,21 @@ export default function Terminal() {
 
       formatPrint(term, "STARTING", "Initializing the Python environment");
 
-      // ======================================
-      // CAPTURA DE INPUT DO TECLADO
-      // ======================================
       term.onData((data) => {
         if (!inputResolverRef.current) return;
-
         switch (data) {
-          case "\r": // ENTER
+          case "\r":
             term.write("\r\n");
             inputResolverRef.current(inputBufferRef.current);
             inputResolverRef.current = null;
             inputBufferRef.current = "";
             break;
-
-          case "\u007f": // BACKSPACE
+          case "\u007f":
             if (inputBufferRef.current.length > 0) {
               inputBufferRef.current = inputBufferRef.current.slice(0, -1);
               term.write("\b \b");
             }
             break;
-
           default:
             inputBufferRef.current += data;
             term.write(data);
@@ -152,7 +121,6 @@ export default function Terminal() {
 
           pyodideRef.current = await window.loadPyodide();
 
-          // Função JS acessível no Python
           window.terminalInput = (message) => {
             return new Promise((resolve) => {
               if (message) term.write(message);
@@ -160,7 +128,7 @@ export default function Terminal() {
             });
           };
 
-          // Substitui input() do Python
+          // INJEÇÃO DO CUSTOM PRINT E INPUT
           await pyodideRef.current.runPythonAsync(`
 import builtins
 from js import terminalInput
@@ -168,17 +136,23 @@ from js import terminalInput
 async def custom_input(message=""):
     return await terminalInput(message)
 
+def custom_print(*args, **kwargs):
+    # Força o flush=True para que o texto saia imediatamente
+    kwargs.setdefault('flush', True)
+    return builtins._old_print(*args, **kwargs)
+
+# Faz o backup do print original se ainda não foi feito
+if not hasattr(builtins, '_old_print'):
+    builtins._old_print = builtins.print
+
+builtins.print = custom_print
 builtins.input = custom_input
-        `);
+          `);
 
           setIsReady(true);
           formatPrint(term, "READY", "Python is ready to use.");
         } catch (err) {
-          formatPrint(
-            term,
-            "LOAD FAILURE",
-            (err as Error)?.message || "Unknown error while loading Pyodide.",
-          );
+          formatPrint(term, "LOAD FAILURE", (err as Error)?.message || "Error loading Pyodide.");
         }
       };
 
@@ -193,76 +167,54 @@ builtins.input = custom_input
     setupTerminal();
   }, []);
 
-  // ===============================
-  // EXECUÇÃO DO CÓDIGO
-  // ===============================
   const runPython = async () => {
     const term = xtermRef.current;
-
-    if (!term) return;
+    if (!term || !pyodideRef.current || !codeToRun) return;
 
     term.clear();
     term.focus();
 
-    if (!pyodideRef.current || !codeToRun) {
-      formatPrint(term, "ATTENTION", "No code available for execution.");
-      return;
-    }
-
     formatPrint(term, "LOG", "Start of execution", "final");
     try {
+      // CONFIGURAÇÃO DE SAÍDA EM TEMPO REAL (RAW)
       pyodideRef.current.setStdout({
-        batched: (str: string) => term.write(str),
+        write: (buffer: Uint8Array) => {
+          const decoder = new TextDecoder("utf-8");
+          term.write(decoder.decode(buffer));
+          return buffer.length;
+        },
       });
 
       const cleanCode = codeToRun
         .trim()
-        // adiciona await antes de input(
         .replace(/(^|[^a-zA-Z0-9_])input\s*\(/g, "$1await input(");
 
       const wrappedCode = `
 async def __main__():
-${cleanCode
-  .split("\n")
-  .map((line) => "    " + line)
-  .join("\n")}
+${cleanCode.split("\n").map((line) => "    " + line).join("\n")}
 
 await __main__()
 `;
 
       await pyodideRef.current.runPythonAsync(wrappedCode);
-
       formatPrint(term, "LOG", "Completed successfully", "init");
     } catch (err) {
-      formatPrint(
-        term,
-        "CRITICAL ERROR",
-        (err as Error)?.message || "Unknown error in Python",
-      );
+      formatPrint(term, "CRITICAL ERROR", (err as Error)?.message || "Python error");
     }
   };
 
-  // ===============================
-  // RENDER
-  // ===============================
   return (
     <div className="overflow-hidden h-full w-full" ref={ref}>
       <div className="py-1.25 px-3.75 bg-[#252525] flex justify-between items-center border-b border-t border-[#333]">
         <span className="text-[#aaa] text-sm font-bold">Console Python</span>
-
         <button
           onClick={runPython}
           disabled={!isReady || !codeToRun || !name.includes(".py")}
           className={`flex items-center gap-2.5 border border-transparent px-5 py-1 text-sm font-bold font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap rounded-sm text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${isReady && codeToRun && name.includes(".py") ? "bg-[#0277BD] cursor-pointer hover:bg-[#0277bd90] hover:border-[#0277bd]" : "bg-[#555] cursor-not-allowed"}`}
         >
-          {isReady
-            ? name.includes(".py")
-              ? "▶ RUN"
-              : "STAND BY"
-            : "CARREGANDO..."}
+          {isReady ? (name.includes(".py") ? "▶ RUN" : "STAND BY") : "CARREGANDO..."}
         </button>
       </div>
-
       <div ref={terminalRef} className="w-full h-[calc(100%-50px)] pl-2.5" />
     </div>
   );

@@ -20,6 +20,7 @@
     "react-arborist": "^3.4.3",
     "react-dom": "19.2.3",
     "react-resizable-panels": "^4.7.0",
+    "sass": "^1.98.0",
     "use-resize-observer": "^9.1.0",
     "zustand": "^5.0.11"
   },

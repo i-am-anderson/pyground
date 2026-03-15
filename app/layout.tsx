@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // @ts-ignore
-import "./globals.css";
+import "./globals.scss";
 import Script from "next/script";
 import { Analytics } from '@vercel/analytics/next';
 
