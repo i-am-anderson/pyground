@@ -30,7 +30,13 @@ export default function Terminal() {
 
   const formatPrint = (
     term: any,
-    status: "LOG" | "STARTING" | "CRITICAL ERROR" | "READY" | "LOAD FAILURE" | "ATTENTION",
+    status:
+      | "LOG"
+      | "STARTING"
+      | "CRITICAL ERROR"
+      | "READY"
+      | "LOAD FAILURE"
+      | "ATTENTION",
     message: string,
     enter?: "init" | "final",
   ) => {
@@ -46,11 +52,22 @@ export default function Terminal() {
     if (status === "LOG") {
       term.writeln(
         (enter === "init" ? "\n" : "") +
-          "\r\n\x1b[" + color + "--- " + message + " ---\x1b[0m" +
+          "\r\n\x1b[" +
+          color +
+          "--- " +
+          message +
+          " ---\x1b[0m" +
           (enter === "final" ? "\n" : ""),
       );
     } else {
-      term.writeln("\r\n\x1b[90m---\x1b[0m \x1b[1;" + color + status + "\x1b[0m \x1b[90m" + "-".repeat(40 - status.length) + "\x1b[0m");
+      term.writeln(
+        "\r\n\x1b[90m---\x1b[0m \x1b[1;" +
+          color +
+          status +
+          "\x1b[0m \x1b[90m" +
+          "-".repeat(40 - status.length) +
+          "\x1b[0m",
+      );
       term.writeln("\x1b[" + color + "    " + message + "\x1b[0m");
       term.writeln("\x1b[90m" + "-".repeat(45) + "\x1b[0m");
     }
@@ -152,7 +169,11 @@ builtins.input = custom_input
           setIsReady(true);
           formatPrint(term, "READY", "Python is ready to use.");
         } catch (err) {
-          formatPrint(term, "LOAD FAILURE", (err as Error)?.message || "Error loading Pyodide.");
+          formatPrint(
+            term,
+            "LOAD FAILURE",
+            (err as Error)?.message || "Error loading Pyodide.",
+          );
         }
       };
 
@@ -174,9 +195,8 @@ builtins.input = custom_input
     term.clear();
     term.focus();
 
-    formatPrint(term, "LOG", "Start of execution", "final");
+    formatPrint(term, "LOG", "Iniciando execução", "final");
     try {
-      // CONFIGURAÇÃO DE SAÍDA EM TEMPO REAL (RAW)
       pyodideRef.current.setStdout({
         write: (buffer: Uint8Array) => {
           const decoder = new TextDecoder("utf-8");
@@ -185,21 +205,65 @@ builtins.input = custom_input
         },
       });
 
-      const cleanCode = codeToRun
-        .trim()
+      // 1. Primeiro, extraímos os nomes de todas as funções definidas pelo usuário
+      const funcNames = [...codeToRun.matchAll(/^def\s+([a-zA-Z0-9_]+)/gm)].map(
+        (m) => m[1],
+      );
+
+      let processedCode = codeToRun
+        // 2. Transforma 'def ' em 'async def ' (apenas no início da linha ou após espaços)
+        .replace(/^(\s*)def\s+/gm, "$1async def ")
+        // 3. Transforma 'input(' em 'await input('
         .replace(/(^|[^a-zA-Z0-9_])input\s*\(/g, "$1await input(");
 
-      const wrappedCode = `
-async def __main__():
-${cleanCode.split("\n").map((line) => "    " + line).join("\n")}
+      // 4. Adiciona 'await' nas CHAMADAS das funções do usuário,
+      // mas ignora se for a própria linha da definição (async def ...)
+      funcNames.forEach((name) => {
+        // Esse Regex procura o nome da função mas garante que NÃO haja "def " antes dela
+        // Usamos um filtro manual para ser mais seguro que Lookbehinds complexos de JS
+        const lines = processedCode.split("\n");
+        processedCode = lines
+          .map((line) => {
+            // Se a linha contém a definição da função, não mexe nela
+            if (line.includes(`async def ${name}`)) return line;
 
-await __main__()
+            // Caso contrário, substitui a chamada pelo await
+            const callRegex = new RegExp(
+              `(^|[^a-zA-Z0-9_])${name}\\s*\\(`,
+              "g",
+            );
+            return line.replace(callRegex, `$1await ${name}(`);
+          })
+          .join("\n");
+      });
+
+      const wrappedCode = `
+import asyncio
+import sys
+
+async def __wrapper__():
+${processedCode
+  .split("\n")
+  .map((line) => "    " + line)
+  .join("\n")}
+
+try:
+    # No Pyodide, runPythonAsync já lida com o await do nível superior
+    await __wrapper__()
+except Exception as e:
+    import traceback
+    traceback.print_exc()
 `;
 
       await pyodideRef.current.runPythonAsync(wrappedCode);
-      formatPrint(term, "LOG", "Completed successfully", "init");
+      formatPrint(term, "LOG", "Concluído com sucesso", "init");
     } catch (err) {
-      formatPrint(term, "CRITICAL ERROR", (err as Error)?.message || "Python error");
+      // Aqui pegamos erros de sintaxe da transformação
+      formatPrint(
+        term,
+        "CRITICAL ERROR",
+        (err as Error)?.message || "Erro no Python",
+      );
     }
   };
 
@@ -212,7 +276,11 @@ await __main__()
           disabled={!isReady || !codeToRun || !name.includes(".py")}
           className={`flex items-center gap-2.5 border border-transparent px-5 py-1 text-sm font-bold font-inherit transition-all duration-250 w-auto text-center whitespace-nowrap rounded-sm text-white focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 ${isReady && codeToRun && name.includes(".py") ? "bg-[#0277BD] cursor-pointer hover:bg-[#0277bd90] hover:border-[#0277bd]" : "bg-[#555] cursor-not-allowed"}`}
         >
-          {isReady ? (name.includes(".py") ? "▶ RUN" : "STAND BY") : "CARREGANDO..."}
+          {isReady
+            ? name.includes(".py")
+              ? "▶ RUN"
+              : "STAND BY"
+            : "CARREGANDO..."}
         </button>
       </div>
       <div ref={terminalRef} className="w-full h-[calc(100%-50px)] pl-2.5" />
